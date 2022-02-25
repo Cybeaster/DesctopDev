@@ -2,14 +2,21 @@ package applcation
 
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
+import javafx.scene.Group
 import javafx.scene.Scene
+import javafx.scene.image.Image
+import javafx.scene.paint.Color
 import javafx.stage.Stage
 
-class HelloApplication : Application() {
+class FishApplication : Application() {
     override fun start(stage: Stage) {
-        val fxmlLoader = FXMLLoader(HelloApplication::class.java.getResource("hello-view.fxml"))
-        val scene = Scene(fxmlLoader.load(), 320.0, 240.0)
-        stage.title = "Hello!"
+        val root = Group()
+        val scene = Scene(root,Color.BLACK)
+
+        val rightCornerImg =
+            Image(FishApplication::class.java.getResource("Ricardo.png").toString())
+        stage.icons.add(rightCornerImg)
+        stage.title = "Specific one"
         stage.scene = scene
         stage.show()
     }
