@@ -3,5 +3,5 @@ import javafx.application.Application
 
 fun main()
 {
-    Application.launch(FishApplication::class.java)
+    Application.launch(RicardoApplication::class.java)
 }
