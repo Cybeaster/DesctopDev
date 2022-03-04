@@ -5,10 +5,15 @@ import javafx.scene.Group
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import java.util.Random
+import java.util.function.Predicate
 
 interface IObject {
 
-    open fun destroy()
+
+    open fun destroy(){
+
+    }
+
     open fun spawn(root : Group){
     }
 
@@ -27,12 +32,9 @@ interface IObject {
 
 class FirstObject : IObject {
 
-
-    override fun destroy() {
-
-    }
-
-    override fun spawn(root : Group) {
+    lateinit var root: Group
+    override fun spawn(rootArg : Group) {
+        root = rootArg
         super.spawnImpl(root,"RicardoUpsideDown.png")
     }
 
@@ -45,11 +47,9 @@ class FirstObject : IObject {
 
 class SecondObject : IObject {
 
-    override fun destroy() {
-
-    }
-
-    override fun spawn(root : Group) {
+    lateinit var root: Group
+    override fun spawn(rootArg : Group) {
+        root = rootArg
        super.spawnImpl(root,"Ricardo.png")
     }
 
