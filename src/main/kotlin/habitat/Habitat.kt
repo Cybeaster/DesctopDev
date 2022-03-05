@@ -2,20 +2,22 @@ package habitat
 import `object`.IObject
 import javafx.scene.Group
 import javafx.scene.image.Image
+import javafx.scene.image.ImageView
 
 
 class Habitat {
 
     fun destroyObjects(root: Group){
+
         for (item in root.children){
-            if(item.javaClass == Image::javaClass){
-                root.children.remove(item)
+            if(item is ImageView){
+                item.image = null
             }
         }
         objects.clear()
     }
-     fun spawnObject(root : Group,entityClass : Class<IObject>) {
-        val newRicardo = entityClass.getConstructor().newInstance()
+     public inline fun spawnObject(root : Group, clazz: Class<out IObject>) {
+        val newRicardo = clazz.getConstructor().newInstance()
          newRicardo.spawn(root)
          objects.add(newRicardo)
     }
@@ -26,9 +28,12 @@ class Habitat {
     }
 
     companion object {
-        val width = 500.0
-        val height = 1000.0
+        const val width = 700.0
+        const val height = 700.0
+        const val fieldOffset = 100.0
+        const val fieldWidth = 500.0
+        const val fieldHeight = 500.0
     }
 
-    lateinit var objects: MutableList<IObject>
+    var objects  = arrayListOf<IObject>()
 }

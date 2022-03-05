@@ -2,6 +2,8 @@ package applcation
 
 import `object`.*
 import habitat.Habitat
+import javafx.animation.KeyFrame
+import javafx.animation.Timeline
 import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.Scene
@@ -15,6 +17,8 @@ import javafx.event.EventHandler
 import javafx.event.EventType
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import javafx.scene.shape.Rectangle
+import javafx.util.Duration
 import java.util.Random
 import java.util.Timer
 import java.util.TimerTask
@@ -31,79 +35,104 @@ class ObjectApplication : Application() {
             Image(ObjectApplication::class.java.getResource("Ricardo.png").toString())
 
         initStage(stage,rightCornerImg,scene)
-        initText(root)
-        initKeyHandler(root,scene)
+        initText()
+        initField()
+        initKeyHandler(scene)
+        setTimers()
+    }
+
+    private fun initField() {
+        val rectangle = Rectangle(Habitat.fieldWidth,Habitat.fieldHeight)
+        rectangle.fill = Color.AQUAMARINE
+        rectangle.x = 100.0
+        rectangle.y = 100.0
+
+        root.children.add(rectangle)
+    }
+
+    private fun initKeyHandler(scene: Scene){
 
         scene.addEventFilter(KeyEvent.KEY_PRESSED, EventHandler {
-                when(it.code){
-                    KeyCode.B -> startSimulation(root)
-                    KeyCode.E -> stopSimulation()
-                    KeyCode.T -> toggleTime()
-                }
-
+            when(it.code){
+                KeyCode.B -> startSimulation(root)
+                KeyCode.E -> stopSimulation()
+                KeyCode.T -> toggleTime()
+            }
         }
         )
     }
 
-    private lateinit var event : EventHandler<KeyEvent>
-    private fun initKeyHandler(root : Group, scene: Scene){
 
-    }
-
-    inner class SpawnerTask (arg1: Group, arg2: Float, private val f: (group : Group,
-                                                                       customClass : Class<IObject>) -> Unit,
-                                                                       argCustomClass : Class<*>? ) : TimerTask() {
-        private val root = arg1
-        private val chance = arg2
-        private val spawnerFunc = f
-        private val customClass = argCustomClass
-        override fun run() {
-            if(Random().nextFloat() < chance) {
-                spawnerFunc(root, customClass as Class<IObject>)
-            }
-
-        }
-    }
-
-    private lateinit var firstTask : SpawnerTask
-    private lateinit var secondTask : SpawnerTask
-
-    private val firstTimer = Timer()
-    private val secondTimer = Timer()
+     private lateinit var firstTimeLine : Timeline
+     private lateinit var secondTimeLine : Timeline
+     private lateinit var timerTimeline: Timeline
+    private var isSimulationStarted = false
 
     private var secondsTimer = 0L
+    private fun setTimers(){
+        timerTimeline = Timeline(KeyFrame(Duration.millis(1000.0),{
+            secondsTimer++
+            counterText.text = secondsTimer.toString()
+        }))
+        timerTimeline.cycleCount = Timeline.INDEFINITE
+
+        firstTimeLine = Timeline( KeyFrame(Duration.millis(FirstObject.spawnDelay),{
+            if(Random().nextFloat() < FirstObject.spawnChance)
+                habitat.spawnObject(root,FirstObject::class.java)
+        })
+        )
+        firstTimeLine.cycleCount = Timeline.INDEFINITE
+
+        secondTimeLine = Timeline( KeyFrame(Duration.millis(SecondObject.spawnDelay),{
+            if(Random().nextFloat() < SecondObject.spawnChance)
+                habitat.spawnObject(root,SecondObject::class.java)
+        })
+        )
+        secondTimeLine.cycleCount = Timeline.INDEFINITE
+    }
+
 
     private fun startSimulation(root: Group) {
-        firstTask = SpawnerTask(root,FirstObject.spawnChance,habitat::spawnObject,FirstObject::class.java)
-        secondTask = SpawnerTask(root,SecondObject.spawnChance,habitat::spawnObject,FirstObject::class.java)
+        if(!isSimulationStarted)
+        {
+            timerTimeline.play()
+            firstTimeLine.play()
+            secondTimeLine.play()
 
-        firstTimer.schedule(firstTask,FirstObject.spawnDelay)
-        secondTimer.schedule(secondTask,SecondObject.spawnDelay)
+            isSimulationStarted = true
 
-        secondsTimer = System.currentTimeMillis()
+            numberOfFirstObj.text = "Number of First objects: 0"
+            numberOfSecondObj.text = "Number of Second objects: 0"
+        }
     }
 
 
     private fun stopSimulation(){
-        firstTimer.cancel()
-        secondTimer.cancel()
-        secondsTimer = System.currentTimeMillis() - secondsTimer
+
+        isSimulationStarted = false
+
+        firstTimeLine.stop()
+        secondTimeLine.stop()
+        timerTimeline.stop()
+
         displayObjects()
         habitat.destroyObjects(root)
+        counterText.text = "0"
+        secondsTimer = 0
     }
 
     private fun displayObjects(){
-        var yAxisCounter = 50.0
-        for (item in habitat.objects ) {
-            val text = Text()
-            text.font = Font.font("Italic",30.0)
-            text.fill = Color.AQUA
-            yAxisCounter += 30.0
+        var numOfFirstObjects = 0
+        var numOfSecondObjects = 0
 
-            text.y = yAxisCounter
-            text.x = 50.0
-            root.children.add(text)
+        for (item in habitat.objects ) {
+            if(item is FirstObject)
+                numOfFirstObjects++
+            else
+                numOfSecondObjects++
         }
+        numberOfFirstObj.text = "Number of First objects: $numOfFirstObjects"
+        numberOfSecondObj.text = "Number of Second objects: $numOfSecondObjects"
     }
     private fun toggleTime(){
         counterText.isVisible = !counterText.isVisible
@@ -119,26 +148,42 @@ class ObjectApplication : Application() {
 
 
     private lateinit var counterText : Text
-    private fun initText(root: Group){
+    private lateinit var numberOfFirstObj : Text
+    private lateinit var numberOfSecondObj : Text
+    private fun initText(){
 
-        val headder = Text("This lab smells like a bullshit.")
-        headder.y = 50.0
-        headder.x = 50.0
-        headder.font = Font.font("Italic",50.0)
-        headder.fill = Color.RED
-        headder.opacity = 0.2
+        val header = Text("This lab smells like a bullshit.")
+        header.y = 50.0
+        header.x = 50.0
+        header.font = Font.font("Italic",50.0)
+        header.fill = Color.RED
+        header.opacity = 0.1
 
         val line = Line(0.0,50.0,Habitat.width,50.0)
         line.stroke = Color.RED
 
-        counterText  = Text()
+        counterText  = Text("0.0")
         counterText.font = Font.font("Italic",60.0)
-        counterText.fill = Color.ALICEBLUE
-        counterText.y = 50.0
-        counterText.x = -50.0
+        counterText.fill = Color.RED
+        counterText.y = 100.0
+        counterText.x = 100.0
 
+        numberOfFirstObj = Text("Number of First objects: 0")
+        numberOfFirstObj.font = Font.font("Verdana",15.0)
+        numberOfFirstObj.fill = Color.CORAL
+        numberOfFirstObj.y = 35.0
+        numberOfFirstObj.x = 100.0
+
+        numberOfSecondObj = Text("Number of Second objects: 0")
+        numberOfSecondObj.font = Font.font("Verdana",15.0)
+        numberOfSecondObj.fill = Color.CYAN
+        numberOfSecondObj.y = 50.0
+        numberOfSecondObj.x = 100.0
+
+        root.children.add(numberOfFirstObj)
+        root.children.add(numberOfSecondObj)
         root.children.add(counterText)
-        root.children.add(headder)
+        root.children.add(header)
         root.children.add(line)
     }
 
