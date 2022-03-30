@@ -6,14 +6,23 @@ import habitat.Habitat
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
 import javafx.event.ActionEvent
+import javafx.event.EventHandler
 import javafx.fxml.FXML
+import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
+import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.control.ToggleButton
+import javafx.scene.image.Image
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
+import javafx.scene.layout.Pane
 import javafx.scene.text.Text
+import javafx.stage.Stage
 import javafx.util.Duration
 import java.util.*
+import kotlin.collections.List
 
 public class Controller {
 
@@ -24,7 +33,10 @@ public class Controller {
     private lateinit var stopButton: Button
 
     @FXML
-    private lateinit var appearingFrequency : ComboBox<Integer>
+    private lateinit var firstAppearingChance : ComboBox<Int>
+
+    @FXML
+    private lateinit var secondAppearingChance : ComboBox<Int>
 
     @FXML
     private lateinit var appearingFirstObjDelay : Slider
@@ -33,10 +45,10 @@ public class Controller {
     private lateinit var appearingSecObjDelay : Slider
 
     @FXML
-    private lateinit var appearingFirstObjText : Slider
+    private lateinit var appearingFirstObjLabel : Label
 
     @FXML
-    private lateinit var appearingSecObjText : Slider
+    private lateinit var appearingSecObjLabel : Label
 
     @FXML
     private lateinit var viewModeToggle : ToggleButton
@@ -53,6 +65,12 @@ public class Controller {
     @FXML
     private lateinit var numberOfSecondObj : Text
 
+    @FXML
+    private lateinit var mainPane : Pane
+
+    @FXML
+    private lateinit var simulationEndPane : Pane
+
     private var currentFirstObjDelay = 0
     private var currentAppearingFreq = 0
 
@@ -64,7 +82,35 @@ public class Controller {
     private lateinit var timerTimeline: Timeline
 
     private val habitat = Habitat()
+    private lateinit var stage : Stage
+    private lateinit var scene: Scene
+    private var isEndGameWindowDisabled = false
+    private fun initStage(rightCornerImg : Image){
+        stage.icons.add(rightCornerImg)
+        stage.title = "Ricardo exe"
+        stage.scene = scene
+        stage.isResizable = false
+        stage.show()
+    }
+    private fun initKeyHandler(scene: Scene){
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, EventHandler {
+            when(it.code){
+                KeyCode.B -> startSimulation()
+                KeyCode.E -> stopSimulation()
+                KeyCode.T -> toggleTime()
+            }
+        }
+        )
+    }
 
+
+    public fun init(stageArg : Stage, rightCornerImg : Image, sceneArg : Scene){
+        stage = stageArg
+        scene = sceneArg
+        initStage(rightCornerImg)
+        initKeyHandler(scene)
+        setTimers()
+    }
     private fun startSimulation() {
         if(!isSimulationStarted)
         {
@@ -81,39 +127,48 @@ public class Controller {
 
     private fun stopSimulation(){
 
-        /*isSimulationStarted = false
+        isSimulationStarted = false
 
         firstTimeLine.stop()
         secondTimeLine.stop()
         timerTimeline.stop()
 
         displayObjects()
-        habitat.destroyObjects(root)
+        habitat.destroyObjects(mainPane)
         counterText.text = "0"
-        secondsTimer = 0*/
+        secondsTimer = 0
     }
 
-  /*  private fun setTimers(){
+    private fun updateTimers(){
+
+        firstTimeLine.stop()
+        secondTimeLine.stop()
+
+        firstTimeLine.delay = Duration.millis(FirstObject.spawnDelay)
+        secondTimeLine.delay = Duration.millis(SecondObject.spawnDelay)
+
+        firstTimeLine.play()
+        firstTimeLine.play()
+    }
+    private fun setTimers(){
         timerTimeline = Timeline(KeyFrame(Duration.millis(1000.0),{
             secondsTimer++
             counterText.text = secondsTimer.toString()
         }))
         timerTimeline.cycleCount = Timeline.INDEFINITE
-
         firstTimeLine = Timeline( KeyFrame(Duration.millis(FirstObject.spawnDelay),{
             if(Random().nextFloat() < FirstObject.spawnChance)
-                habitat.spawnObject(root,FirstObject::class.java)
+                habitat.spawnObject(mainPane,FirstObject::class.java)
         })
         )
         firstTimeLine.cycleCount = Timeline.INDEFINITE
 
         secondTimeLine = Timeline( KeyFrame(Duration.millis(SecondObject.spawnDelay),{
             if(Random().nextFloat() < SecondObject.spawnChance)
-                habitat.spawnObject(root, SecondObject::class.java)
-        })
-        )
+                habitat.spawnObject(mainPane, SecondObject::class.java)
+        }))
         secondTimeLine.cycleCount = Timeline.INDEFINITE
-    }*/
+    }
 
     private fun displayObjects(){
         var numOfFirstObjects = 0
@@ -125,8 +180,8 @@ public class Controller {
             else
                 numOfSecondObjects++
         }
-        numberOfFirstObj.text = "Number of First objects: $numOfFirstObjects"
-        numberOfSecondObj.text = "Number of Second objects: $numOfSecondObjects"
+        numberOfFirstObj.text = "$numOfFirstObjects"
+        numberOfSecondObj.text = "$numOfSecondObjects"
     }
     private fun toggleTime(){
         counterText.isVisible = !counterText.isVisible
@@ -134,13 +189,65 @@ public class Controller {
 
 
     public fun onStartButtonClicked(e : ActionEvent){
-
+        startSimulation()
+        startButton.isDisable = true
+        stopButton.isDisable = false
     }
     public fun onStopButtonClicked(e: ActionEvent){
+        stopSimulation()
+        if(!isEndGameWindowDisabled)
+            simulationEndPane.isVisible = true
 
+        startButton.isDisable = false
+        stopButton.isDisable = true
     }
+
+
+
+    @FXML
+    public fun onToggleEndMenuClicked(e: ActionEvent){
+
+        if(isEndGameWindowDisabled){
+            viewModeToggle.text = "Disable end game window"
+            isEndGameWindowDisabled = false
+        }
+        else{
+            viewModeToggle.text = "Enable end game window"
+            isEndGameWindowDisabled = true
+        }
+    }
+    @FXML
+    public fun onFirstSliderChanged(){
+        FirstObject.spawnDelay = appearingFirstObjDelay.value
+        appearingFirstObjLabel.text = "${appearingFirstObjDelay.value.toInt()}"
+        updateTimers()
+    }
+    @FXML
+    public fun onSecondSliderChanged(){
+        SecondObject.spawnDelay = appearingSecObjDelay.value
+        appearingSecObjLabel.text = "${appearingSecObjDelay.value.toInt()}"
+        updateTimers()
+    }
+
+    @FXML
+    public fun onFirstChanceSelected(e: ActionEvent){
+        FirstObject.spawnChance = firstAppearingChance.selectionModel.selectedItem.toFloat() / 100
+    }
+
+    @FXML
+    public fun onSecondChanceSelected(e: ActionEvent){
+        SecondObject.spawnChance = secondAppearingChance.selectionModel.selectedItem.toFloat() / 100
+    }
+
+    @FXML
     public fun onHideSimulationButtonClicked(e:ActionEvent){
 
     }
+    @FXML
+    public fun initialize(){
 
+        firstAppearingChance.items.addAll(10,20,30,40,50,60,70,80,90,100)
+        secondAppearingChance.items.addAll(10,20,30,40,50,60,70,80,90,100)
+
+    }
 }

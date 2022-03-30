@@ -3,22 +3,23 @@ import `object`.IObject
 import javafx.scene.Group
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.layout.Pane
 
 
 class Habitat {
 
-    fun destroyObjects(root: Group){
+    fun destroyObjects(pane: Pane){
 
-        for (item in root.children){
+        for (item in pane.children){
             if(item is ImageView){
                 item.image = null
             }
         }
         objects.clear()
     }
-     public inline fun spawnObject(root : Group, clazz: Class<out IObject>) {
+     public inline fun spawnObject(pane : Pane, clazz: Class<out IObject>) {
         val newRicardo = clazz.getConstructor().newInstance()
-         newRicardo.spawn(root)
+         newRicardo.spawn(pane)
          objects.add(newRicardo)
     }
 

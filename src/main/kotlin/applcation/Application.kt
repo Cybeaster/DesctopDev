@@ -26,37 +26,13 @@ class ObjectApplication : Application() {
 
     override fun start(stage: Stage) {
 
-        val root : Parent = FXMLLoader.load(javaClass.getResource("/Application.fxml"))
+        val loader = FXMLLoader(javaClass.getResource("/Application.fxml"))
+        val root : Parent = loader.load()
         val scene = Scene(root,Habitat.width,Habitat.height,Color.BLACK)
         val rightCornerImg =
             Image(ObjectApplication::class.java.getResource("Ricardo.png").toString())
+       loader.getController<Controller>().init(stage,rightCornerImg,scene)
 
-      initStage(stage,rightCornerImg,scene)
-        /*
-       initText()
-       initField()
-       initKeyHandler(scene)
-       setTimers()*/
-    }
-
-
-    private fun initStage(stage : Stage, rightCornerImg : Image, scene : Scene){
-        stage.icons.add(rightCornerImg)
-        stage.title = "Ricardo exe"
-        stage.scene = scene
-        stage.isResizable = false
-        stage.show()
-    }
-    private fun initKeyHandler(scene: Scene){
-/*
-        scene.addEventFilter(KeyEvent.KEY_PRESSED, EventHandler {
-            when(it.code){
-                KeyCode.B -> startSimulation()
-                KeyCode.E -> stopSimulation()
-                KeyCode.T -> toggleTime()
-            }
-        }
-        )*/
     }
 
 
