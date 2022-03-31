@@ -5,6 +5,7 @@ import habitat.Habitat
 import javafx.scene.Group
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.layout.Pane
 import java.util.Random
 import java.util.function.Predicate
 
@@ -15,10 +16,10 @@ interface IObject {
 
     }
 
-    open fun spawn(root : Group){
+    open fun spawn(pane : Pane){
     }
 
-    fun spawnImpl(root : Group, name : String){
+    fun spawnImpl(pane : Pane, name : String){
         val image = Image(ObjectApplication::class.java.getResource(name).toString())
         val imageView = ImageView()
         imageView.image = image
@@ -27,36 +28,36 @@ interface IObject {
         imageView.x = Habitat.fieldWidth  * Random().nextFloat() + Habitat.fieldOffset
         imageView.y = Habitat.fieldHeight  * Random().nextFloat() + Habitat.fieldOffset
 
-        root.children.add(imageView)
+        pane.children.add(imageView)
     }
 }
 
 
 class FirstObject : IObject {
 
-    lateinit var root: Group
-    override fun spawn(rootArg : Group) {
-        root = rootArg
-        super.spawnImpl(root,"RicardoUpsideDown.jpg")
+    lateinit var pane: Pane
+    override fun spawn(paneArg : Pane) {
+        pane = paneArg
+        super.spawnImpl(pane,"RicardoUpsideDown.jpg")
     }
 
     companion object {
-        const val spawnDelay = 2000.0
-        const val spawnChance = 0.8f
+        var spawnDelay = 2000.0
+        var spawnChance = 0.8f
     }
 
 }
 
 class SecondObject : IObject {
 
-    lateinit var root: Group
-    override fun spawn(rootArg : Group) {
-        root = rootArg
-       super.spawnImpl(root,"Ricardo.png")
+    lateinit var pane: Pane
+    override fun spawn(paneArg: Pane) {
+        pane = paneArg
+       super.spawnImpl(pane,"Ricardo.png")
     }
 
     companion object {
-        const val spawnDelay = 5000.0
-        const val spawnChance = 0.5f
+        var spawnDelay = 5000.0
+        var spawnChance = 0.5f
     }
 }
