@@ -57,7 +57,10 @@ public class Controller {
     private lateinit var hideSimulationTimeButton : Button
 
     @FXML
-    private lateinit var counterText : Text
+    private lateinit var timeCounterText : Text
+
+    @FXML
+    private lateinit var timeInSimulationLabel : Label
 
     @FXML
     private lateinit var numberOfFirstObj : Text
@@ -85,6 +88,8 @@ public class Controller {
     private lateinit var stage : Stage
     private lateinit var scene: Scene
     private var isEndGameWindowDisabled = false
+    private var isHiddenSimulationTime = false
+
     private fun initStage(rightCornerImg : Image){
         stage.icons.add(rightCornerImg)
         stage.title = "Ricardo exe"
@@ -126,34 +131,47 @@ public class Controller {
     }
 
     private fun stopSimulation(){
+        pauseSimulation()
 
+        habitat.destroyObjects(mainPane)
+        timeCounterText.text = "0"
+        secondsTimer = 0
+    }
+    private fun pauseSimulation()
+    {
         isSimulationStarted = false
 
         firstTimeLine.stop()
         secondTimeLine.stop()
         timerTimeline.stop()
-
         displayObjects()
-        habitat.destroyObjects(mainPane)
-        counterText.text = "0"
-        secondsTimer = 0
-    }
 
+    }
     private fun updateTimers(){
 
         firstTimeLine.stop()
         secondTimeLine.stop()
 
-        firstTimeLine.delay = Duration.millis(FirstObject.spawnDelay)
-        secondTimeLine.delay = Duration.millis(SecondObject.spawnDelay)
+        firstTimeLine.keyFrames.clear()
+        secondTimeLine.keyFrames.clear()
+
+        firstTimeLine.keyFrames.add(KeyFrame(Duration.millis(FirstObject.spawnDelay),{
+            if(Random().nextFloat() < FirstObject.spawnChance)
+                habitat.spawnObject(mainPane,FirstObject::class.java)
+        }))
+
+        secondTimeLine.keyFrames.add(KeyFrame(Duration.millis(SecondObject.spawnDelay),{
+            if(Random().nextFloat() < SecondObject.spawnChance)
+                habitat.spawnObject(mainPane, SecondObject::class.java)
+        }))
 
         firstTimeLine.play()
-        firstTimeLine.play()
+        secondTimeLine.play()
     }
     private fun setTimers(){
         timerTimeline = Timeline(KeyFrame(Duration.millis(1000.0),{
             secondsTimer++
-            counterText.text = secondsTimer.toString()
+            timeCounterText.text = secondsTimer.toString()
         }))
         timerTimeline.cycleCount = Timeline.INDEFINITE
         firstTimeLine = Timeline( KeyFrame(Duration.millis(FirstObject.spawnDelay),{
@@ -184,7 +202,8 @@ public class Controller {
         numberOfSecondObj.text = "$numOfSecondObjects"
     }
     private fun toggleTime(){
-        counterText.isVisible = !counterText.isVisible
+        timeCounterText.isVisible = !timeCounterText.isVisible
+        timeInSimulationLabel.isVisible = !timeInSimulationLabel.isVisible
     }
 
 
@@ -194,7 +213,7 @@ public class Controller {
         stopButton.isDisable = false
     }
     public fun onStopButtonClicked(e: ActionEvent){
-        stopSimulation()
+        pauseSimulation()
         if(!isEndGameWindowDisabled)
             simulationEndPane.isVisible = true
 
@@ -240,7 +259,19 @@ public class Controller {
     }
 
     @FXML
-    public fun onHideSimulationButtonClicked(e:ActionEvent){
+    public fun onHideSimulationTimeButtonClicked(e:ActionEvent){
+        if(isHiddenSimulationTime)
+        {
+            hideSimulationTimeButton.text = "Show simulation time"
+
+            isHiddenSimulationTime = false
+        }
+        else
+        {
+            hideSimulationTimeButton.text = "Hide simulation time"
+            isHiddenSimulationTime = true
+        }
+        toggleTime()
 
     }
     @FXML
@@ -248,6 +279,19 @@ public class Controller {
 
         firstAppearingChance.items.addAll(10,20,30,40,50,60,70,80,90,100)
         secondAppearingChance.items.addAll(10,20,30,40,50,60,70,80,90,100)
+    }
 
+    @FXML
+    public fun onEndMenuOkClicked(e: ActionEvent){
+        simulationEndPane.isVisible = false
+        stopSimulation()
+    }
+
+    @FXML
+    public fun onEndMenuDenyClicked(e: ActionEvent){
+        simulationEndPane.isVisible = false
+        startSimulation()
+        startButton.isDisable = true
+        stopButton.isDisable = false
     }
 }

@@ -30,20 +30,7 @@
       </Button>
       <ToggleButton fx:id="viewModeToggle" layoutX="709.0" layoutY="659.0" mnemonicParsing="false" onAction="#onToggleEndMenuClicked" prefHeight="41.0" prefWidth="186.0" text="Disable end game window" />
       <Button layoutX="14.0" layoutY="710.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="139.0" text="Show simulation time " />
-      <Button fx:id="hideSimulationTimeButton" layoutX="14.0" layoutY="710.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="139.0" text="Hide simulation time" />
-      <Pane fx:id="simulationEndPane" layoutX="230.0" layoutY="300.0" prefHeight="200.0" prefWidth="600.0" visible="false">
-         <children>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="200.0" stroke="BLACK" strokeType="INSIDE" width="600.0" />
-            <Button layoutX="333.0" layoutY="140.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="253.0" text="DENY" />
-            <Button layoutX="22.0" layoutY="140.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="253.0" text="OK" />
-            <Label layoutX="6.0" layoutY="48.0" text="First Object Quantity:" />
-            <Label layoutX="6.0" layoutY="91.0" text="Second Object Quantity:" />
-            <Text fx:id="numberOfFirstObj" layoutX="137.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
-            <Text fx:id="numberOfSecondObj" layoutX="159.0" layoutY="104.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
-            <Text fx:id="counterText" layoutX="130.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
-            <Label layoutX="13.0" layoutY="13.0" text="Time in simulation:" />
-         </children>
-      </Pane>
+      <Button fx:id="hideSimulationTimeButton" layoutX="14.0" layoutY="710.0" mnemonicParsing="false" onAction="#onHideSimulationTimeButtonClicked" prefHeight="34.0" prefWidth="139.0" text="Hide simulation time" />
       <ComboBox fx:id="firstAppearingChance" layoutX="600.0" layoutY="260.0" onAction="#onFirstChanceSelected" prefHeight="26.0" prefWidth="186.0" promptText="Chance" />
       <Slider fx:id="appearingFirstObjDelay" layoutX="726.0" layoutY="333.0" max="10000.0" min="100.0" onMouseReleased="#onFirstSliderChanged" value="1000.0" />
       <Slider fx:id="appearingSecObjDelay" layoutX="726.0" layoutY="367.0" max="10000.0" min="100.0" onMouseReleased="#onSecondSliderChanged" value="1000.0" />
@@ -55,5 +42,18 @@
       <Label layoutX="635.0" layoutY="370.0" prefHeight="18.0" prefWidth="86.0" text="Second Object" />
       <ComboBox fx:id="secondAppearingChance" layoutX="805.0" layoutY="260.0" onAction="#onSecondChanceSelected" prefHeight="26.0" prefWidth="186.0" promptText="Chance" />
       <Label layoutX="805.0" layoutY="240.0" prefHeight="18.0" prefWidth="186.0" text="Sec Object Appearing Chance" />
+      <Pane fx:id="simulationEndPane" layoutX="230.0" layoutY="300.0" prefHeight="200.0" prefWidth="600.0" visible="false">
+         <children>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="200.0" stroke="BLACK" strokeType="INSIDE" width="600.0" />
+            <Button layoutX="333.0" layoutY="140.0" mnemonicParsing="false" onAction="#onEndMenuDenyClicked" prefHeight="50.0" prefWidth="253.0" text="DENY" />
+            <Button layoutX="22.0" layoutY="140.0" mnemonicParsing="false" onAction="#onEndMenuOkClicked" prefHeight="50.0" prefWidth="253.0" text="OK" />
+            <Label layoutX="6.0" layoutY="48.0" text="First Object Quantity:" />
+            <Label layoutX="6.0" layoutY="91.0" text="Second Object Quantity:" />
+            <Text fx:id="numberOfFirstObj" layoutX="137.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+            <Text fx:id="numberOfSecondObj" layoutX="159.0" layoutY="104.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+            <Text fx:id="timeCounterText" layoutX="130.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+            <Label fx:id="timeInSimulationLabel" layoutX="13.0" layoutY="13.0" text="Time in simulation:" />
+         </children>
+      </Pane>
    </children>
 </AnchorPane>
