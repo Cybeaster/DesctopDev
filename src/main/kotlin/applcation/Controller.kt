@@ -22,7 +22,6 @@ import javafx.scene.text.Text
 import javafx.stage.Stage
 import javafx.util.Duration
 import java.util.*
-import kotlin.collections.List
 
 public class Controller {
 
@@ -97,6 +96,7 @@ public class Controller {
         stage.isResizable = false
         stage.show()
     }
+
     private fun initKeyHandler(scene: Scene){
         scene.addEventFilter(KeyEvent.KEY_PRESSED, EventHandler {
             when(it.code){
@@ -174,11 +174,13 @@ public class Controller {
             timeCounterText.text = secondsTimer.toString()
         }))
         timerTimeline.cycleCount = Timeline.INDEFINITE
+
         firstTimeLine = Timeline( KeyFrame(Duration.millis(FirstObject.spawnDelay),{
             if(Random().nextFloat() < FirstObject.spawnChance)
                 habitat.spawnObject(mainPane,FirstObject::class.java)
         })
         )
+
         firstTimeLine.cycleCount = Timeline.INDEFINITE
 
         secondTimeLine = Timeline( KeyFrame(Duration.millis(SecondObject.spawnDelay),{
