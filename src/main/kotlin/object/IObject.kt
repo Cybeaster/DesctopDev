@@ -9,8 +9,7 @@ import javafx.scene.layout.Pane
 import java.util.Random
 import java.util.function.Predicate
 
-interface IObject {
-
+abstract class IObject : Comparable<IObject> {
 
     open fun destroy(){
 
@@ -21,43 +20,56 @@ interface IObject {
 
     fun spawnImpl(pane : Pane, name : String){
         val image = Image(ObjectApplication::class.java.getResource(name).toString())
-        val imageView = ImageView()
+        imageView = ImageView()
         imageView.image = image
         imageView.fitWidth = 50.0
         imageView.fitHeight = 50.0
         imageView.x = Habitat.fieldWidth  * Random().nextFloat() + Habitat.fieldOffset
         imageView.y = Habitat.fieldHeight  * Random().nextFloat() + Habitat.fieldOffset
 
+        id = Random().nextInt(0,1000)
         pane.children.add(imageView)
+    }
+    public var id : Int = -1
+    public var currentLifeTime = 0f
+    public lateinit var imageView : ImageView
+
+    override fun compareTo(other: IObject): Int {
+        return id - other.id
     }
 }
 
 
-class FirstObject : IObject {
+class FirstObject : IObject() {
 
     lateinit var pane: Pane
     override fun spawn(paneArg : Pane) {
         pane = paneArg
         super.spawnImpl(pane,"RicardoUpsideDown.jpg")
+        currentLifeTime = lifeTime
     }
 
-    companion object {
-        var spawnDelay = 2000.0
-        var spawnChance = 0.8f
+    companion object Properties{
+        public var spawnDelay = 2000.0
+        public var spawnChance = 0.8f
+        public var lifeTime = 1000f
     }
 
 }
 
-class SecondObject : IObject {
+class SecondObject : IObject() {
 
     lateinit var pane: Pane
+
     override fun spawn(paneArg: Pane) {
         pane = paneArg
-       super.spawnImpl(pane,"Ricardo.png")
+        super.spawnImpl(pane,"Ricardo.png")
+        currentLifeTime = lifeTime
     }
 
-    companion object {
-        var spawnDelay = 5000.0
-        var spawnChance = 0.5f
+    companion object Properties{
+        public var spawnDelay = 2000.0
+        public var spawnChance = 0.8f
+        public var lifeTime = 1000f
     }
 }

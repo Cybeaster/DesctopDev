@@ -50,6 +50,18 @@ public class Controller {
     private lateinit var appearingSecObjLabel : Label
 
     @FXML
+    private lateinit var lifeTimeFirstSlider : Slider
+
+    @FXML
+    private lateinit var lifeTimeSecondSlider : Slider
+
+    @FXML
+    private lateinit var lifeTimeFirstLabel : Label
+
+    @FXML
+    private lateinit var lifeTimeSecondLabel : Label
+
+    @FXML
     private lateinit var viewModeToggle : ToggleButton
 
     @FXML
@@ -77,7 +89,7 @@ public class Controller {
     private var currentAppearingFreq = 0
 
     private var isSimulationStarted = false
-    private var secondsTimer = 0L
+    private var secondsTimer = 0f
 
     private lateinit var firstTimeLine : Timeline
     private lateinit var secondTimeLine : Timeline
@@ -135,7 +147,7 @@ public class Controller {
 
         habitat.destroyObjects(mainPane)
         timeCounterText.text = "0"
-        secondsTimer = 0
+        secondsTimer = 0f
     }
     private fun pauseSimulation()
     {
@@ -157,27 +169,29 @@ public class Controller {
 
         firstTimeLine.keyFrames.add(KeyFrame(Duration.millis(FirstObject.spawnDelay),{
             if(Random().nextFloat() < FirstObject.spawnChance)
-                habitat.spawnObject(mainPane,FirstObject::class.java)
+                habitat.spawnObject(mainPane,FirstObject::class.java,secondsTimer)
         }))
 
         secondTimeLine.keyFrames.add(KeyFrame(Duration.millis(SecondObject.spawnDelay),{
             if(Random().nextFloat() < SecondObject.spawnChance)
-                habitat.spawnObject(mainPane, SecondObject::class.java)
+                habitat.spawnObject(mainPane, SecondObject::class.java,secondsTimer)
         }))
 
         firstTimeLine.play()
         secondTimeLine.play()
     }
     private fun setTimers(){
+
         timerTimeline = Timeline(KeyFrame(Duration.millis(1000.0),{
             secondsTimer++
             timeCounterText.text = secondsTimer.toString()
+            habitat.tickDeleteTimer(1000f,mainPane)
         }))
         timerTimeline.cycleCount = Timeline.INDEFINITE
 
         firstTimeLine = Timeline( KeyFrame(Duration.millis(FirstObject.spawnDelay),{
             if(Random().nextFloat() < FirstObject.spawnChance)
-                habitat.spawnObject(mainPane,FirstObject::class.java)
+                habitat.spawnObject(mainPane,FirstObject::class.java,secondsTimer)
         })
         )
 
@@ -185,7 +199,7 @@ public class Controller {
 
         secondTimeLine = Timeline( KeyFrame(Duration.millis(SecondObject.spawnDelay),{
             if(Random().nextFloat() < SecondObject.spawnChance)
-                habitat.spawnObject(mainPane, SecondObject::class.java)
+                habitat.spawnObject(mainPane, SecondObject::class.java,secondsTimer)
         }))
         secondTimeLine.cycleCount = Timeline.INDEFINITE
     }
@@ -238,16 +252,27 @@ public class Controller {
         }
     }
     @FXML
-    public fun onFirstSliderChanged(){
+    public fun onFirstAppearingSliderChanged(){
         FirstObject.spawnDelay = appearingFirstObjDelay.value
         appearingFirstObjLabel.text = "${appearingFirstObjDelay.value.toInt()}"
         updateTimers()
     }
     @FXML
-    public fun onSecondSliderChanged(){
+    public fun onSecondAppearingSliderChanged(){
         SecondObject.spawnDelay = appearingSecObjDelay.value
         appearingSecObjLabel.text = "${appearingSecObjDelay.value.toInt()}"
         updateTimers()
+    }
+
+    @FXML
+    public fun onFirstLifeTimeSliderChanged(){
+        FirstObject.lifeTime = lifeTimeFirstSlider.value.toFloat()
+        lifeTimeFirstLabel.text = "${lifeTimeFirstSlider.value.toInt()}"
+    }
+    @FXML
+    public fun onSecondLifeTimeSliderChanged(){
+        SecondObject.lifeTime = lifeTimeSecondSlider.value.toFloat()
+        lifeTimeSecondLabel.text = "${lifeTimeSecondSlider.value.toInt()}"
     }
 
     @FXML

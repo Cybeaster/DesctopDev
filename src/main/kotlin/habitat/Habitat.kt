@@ -4,6 +4,8 @@ import javafx.scene.Group
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Pane
+import java.util.LinkedList
+import java.util.TreeMap
 
 
 class Habitat {
@@ -17,12 +19,36 @@ class Habitat {
         }
         objects.clear()
     }
-     public inline fun spawnObject(pane : Pane, clazz: Class<out IObject>) {
-        val newRicardo = clazz.getConstructor().newInstance()
-         newRicardo.spawn(pane)
-         objects.add(newRicardo)
+    fun removeObjectFromPanel(obj : IObject, pane: Pane){
+        for (paneObj in pane.children){
+            if(obj.imageView == paneObj)
+                pane.children.remove(paneObj)
+        }
     }
 
+
+     public inline fun spawnObject(pane : Pane, clazz: Class<out IObject>, currentTime : Float) {
+        val newRicardo = clazz.getConstructor().newInstance()
+         newRicardo.spawn(pane)
+
+         objects.add(newRicardo)
+         objectIds.add(newRicardo.id)
+         objectTimeBirth[newRicardo] = currentTime
+    }
+
+    public inline fun tickDeleteTimer(deltaTime : Float,pane: Pane){
+        for(currentObj in objects){
+            currentObj.currentLifeTime -= deltaTime
+            if(currentObj.currentLifeTime <= 0){
+
+                removeObjectFromPanel(currentObj,pane)
+
+                objectTimeBirth.remove(currentObj)
+                objectIds.remove(currentObj.id)
+                objects.remove(currentObj)
+            }
+        }
+    }
 
     fun update() {
 
@@ -36,5 +62,7 @@ class Habitat {
         const val fieldHeight = 500.0
     }
 
-    var objects  = arrayListOf<IObject>()
+    var objects  = LinkedList<IObject>()
+    var objectIds = HashSet<Int>()
+    var objectTimeBirth = TreeMap<IObject,Float>()
 }
