@@ -21,10 +21,22 @@ import javafx.scene.layout.Pane
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import javafx.util.Duration
+import org.controlsfx.control.action.Action
 import java.util.*
 
 public class Controller {
 
+    @FXML
+    private lateinit var startTopButton: Button
+
+    @FXML
+    private lateinit var stopTopButton: Button
+
+    @FXML
+    private lateinit var toggleTimeButton: Button
+
+    @FXML
+    private lateinit var toggleEndWindowButton :Button
     @FXML
     private lateinit var startButton : Button
 
@@ -85,8 +97,6 @@ public class Controller {
     @FXML
     private lateinit var simulationEndPane : Pane
 
-    private var currentFirstObjDelay = 0
-    private var currentAppearingFreq = 0
 
     private var isSimulationStarted = false
     private var secondsTimer = 0f
@@ -112,9 +122,9 @@ public class Controller {
     private fun initKeyHandler(scene: Scene){
         scene.addEventFilter(KeyEvent.KEY_PRESSED, EventHandler {
             when(it.code){
-                KeyCode.B -> startSimulation()
-                KeyCode.E -> stopSimulation()
-                KeyCode.T -> toggleTime()
+                KeyCode.B -> onStartButtonClicked(ActionEvent())
+                KeyCode.E -> onStopButtonClicked(ActionEvent())
+                KeyCode.T -> onHideSimulationTimeButtonClicked(ActionEvent())
             }
         }
         )
@@ -226,18 +236,36 @@ public class Controller {
     public fun onStartButtonClicked(e : ActionEvent){
         startSimulation()
         startButton.isDisable = true
+        startTopButton.isDisable = true
         stopButton.isDisable = false
+        stopTopButton.isDisable = false
     }
     public fun onStopButtonClicked(e: ActionEvent){
         pauseSimulation()
         if(!isEndGameWindowDisabled)
+        {
             simulationEndPane.isVisible = true
-
-        startButton.isDisable = false
+            startTopButton.isDisable = true
+            stopTopButton.isDisable = true
+            setControllersEnabled(false)
+        }
+        else
+        {
+            setControllersEnabled(true)
+            startTopButton.isDisable = false
+            startButton.isDisable = false
+        }
         stopButton.isDisable = true
+
     }
 
-
+    public fun setControllersEnabled(enableControlElems : Boolean){
+        viewModeToggle.isDisable = !enableControlElems
+        secondAppearingChance.isDisable = !enableControlElems
+        firstAppearingChance.isDisable = !enableControlElems
+        toggleTimeButton.isDisable = !enableControlElems
+        toggleEndWindowButton.isDisable = !enableControlElems
+    }
 
     @FXML
     public fun onToggleEndMenuClicked(e: ActionEvent){
@@ -289,13 +317,12 @@ public class Controller {
     public fun onHideSimulationTimeButtonClicked(e:ActionEvent){
         if(isHiddenSimulationTime)
         {
-            hideSimulationTimeButton.text = "Show simulation time"
-
+            hideSimulationTimeButton.text = "Hide simulation time"
             isHiddenSimulationTime = false
         }
         else
         {
-            hideSimulationTimeButton.text = "Hide simulation time"
+            hideSimulationTimeButton.text = "Show simulation time"
             isHiddenSimulationTime = true
         }
         toggleTime()
@@ -311,7 +338,12 @@ public class Controller {
     @FXML
     public fun onEndMenuOkClicked(e: ActionEvent){
         simulationEndPane.isVisible = false
+
         stopSimulation()
+        setControllersEnabled(true)
+        startButton.isDisable = false
+        startTopButton.isDisable = false
+
     }
 
     @FXML
@@ -319,6 +351,10 @@ public class Controller {
         simulationEndPane.isVisible = false
         startSimulation()
         startButton.isDisable = true
+        startTopButton.isDisable = true
         stopButton.isDisable = false
+        stopTopButton.isDisable = false
+
+        setControllersEnabled(true)
     }
 }

@@ -3,6 +3,9 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -15,22 +18,20 @@
    <children>
       <Pane fx:id="mainPane" layoutY="100.0" prefHeight="600.0" prefWidth="577.0" AnchorPane.topAnchor="100.0">
          <children>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="600.0" stroke="BLACK" strokeType="INSIDE" width="600.0" />
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="600.0" stroke="BLACK" strokeType="INSIDE" width="578.0" />
          </children>
       </Pane>
-      <Button fx:id="startButton" layoutX="657.0" layoutY="8.0" mnemonicParsing="false" onAction="#onStartButtonClicked" prefHeight="82.0" prefWidth="139.0" text="Start">
+      <Button fx:id="startButton" layoutX="656.0" layoutY="57.0" mnemonicParsing="false" onAction="#onStartButtonClicked" prefHeight="82.0" prefWidth="139.0" text="Start">
          <font>
             <Font size="40.0" />
          </font>
       </Button>
-      <Button fx:id="stopButton" disable="true" layoutX="847.0" layoutY="8.0" mnemonicParsing="false" onAction="#onStopButtonClicked" prefHeight="82.0" prefWidth="139.0" text="Stop">
+      <Button fx:id="stopButton" disable="true" layoutX="846.0" layoutY="57.0" mnemonicParsing="false" onAction="#onStopButtonClicked" prefHeight="82.0" prefWidth="139.0" text="Stop">
          <font>
             <Font size="40.0" />
          </font>
       </Button>
       <ToggleButton fx:id="viewModeToggle" layoutX="709.0" layoutY="659.0" mnemonicParsing="false" onAction="#onToggleEndMenuClicked" prefHeight="41.0" prefWidth="186.0" text="Disable end game window" />
-      <Button layoutX="14.0" layoutY="710.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="139.0" text="Show simulation time " />
-      <Button fx:id="hideSimulationTimeButton" layoutX="14.0" layoutY="710.0" mnemonicParsing="false" onAction="#onHideSimulationTimeButtonClicked" prefHeight="34.0" prefWidth="139.0" text="Hide simulation time" />
       <ComboBox fx:id="firstAppearingChance" layoutX="600.0" layoutY="260.0" onAction="#onFirstChanceSelected" prefHeight="26.0" prefWidth="186.0" promptText="Chance" />
       <Slider fx:id="appearingFirstObjDelay" layoutX="726.0" layoutY="333.0" max="10000.0" min="100.0" onMouseReleased="#onFirstAppearingSliderChanged" value="1000.0" />
       <Slider fx:id="appearingSecObjDelay" layoutX="726.0" layoutY="367.0" max="10000.0" min="100.0" onMouseReleased="#onSecondAppearingSliderChanged" value="1000.0" />
@@ -52,6 +53,7 @@
             <Text fx:id="numberOfSecondObj" layoutX="159.0" layoutY="104.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
             <Text fx:id="timeCounterText" layoutX="130.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
             <Label fx:id="timeInSimulationLabel" layoutX="13.0" layoutY="13.0" text="Time in simulation:" />
+            <Button fx:id="hideSimulationTimeButton" layoutX="447.0" layoutY="5.0" mnemonicParsing="false" onAction="#onHideSimulationTimeButtonClicked" prefHeight="34.0" prefWidth="139.0" text="Hide simulation time" />
          </children>
       </Pane>
       <Label fx:id="appearingSecObjLabel1" layoutX="866.0" layoutY="370.0" text="1000" />
@@ -62,5 +64,33 @@
       <Label layoutX="648.0" layoutY="438.0" text="First object" />
       <Label layoutX="635.0" layoutY="472.0" prefHeight="18.0" prefWidth="86.0" text="Second Object" />
       <Label fx:id="lifeTimeSecondLabel" layoutX="866.0" layoutY="472.0" text="1000" />
+      <MenuBar layoutY="1.0" prefHeight="26.0" prefWidth="50.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false">
+                     <graphic>
+                        <Button fx:id="startTopButton" mnemonicParsing="false" onAction="#onStartButtonClicked" text="Start" />
+                     </graphic>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false">
+                     <graphic>
+                        <Button fx:id="stopTopButton" mnemonicParsing="false" onAction="#onStopButtonClicked" text="Close" />
+                     </graphic>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false">
+                     <graphic>
+                        <Button fx:id="toggleTimeButton" mnemonicParsing="false" onAction="#onHideSimulationTimeButtonClicked" text="Toggle time" />
+                     </graphic>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false">
+                     <graphic>
+                        <Button fx:id="toggleEndWindowButton" mnemonicParsing="false" onAction="#onToggleEndMenuClicked" text="Toggle end window" />
+                     </graphic>
+                  </MenuItem>
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
    </children>
 </AnchorPane>
