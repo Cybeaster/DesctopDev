@@ -1,10 +1,12 @@
 package habitat
+import `object`.FirstObject
 import `object`.IObject
 import javafx.scene.Group
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Pane
 import java.util.LinkedList
+import java.util.Objects
 import java.util.TreeMap
 
 
@@ -19,10 +21,15 @@ class Habitat {
         }
         objects.clear()
     }
+
     fun removeObjectFromPanel(obj : IObject, pane: Pane){
         for (paneObj in pane.children){
             if(obj.imageView == paneObj)
+            {
                 pane.children.remove(paneObj)
+                return
+            }
+
         }
     }
 
@@ -30,7 +37,6 @@ class Habitat {
      public inline fun spawnObject(pane : Pane, clazz: Class<out IObject>, currentTime : Float) {
         val newRicardo = clazz.getConstructor().newInstance()
          newRicardo.spawn(pane)
-
          objects.add(newRicardo)
          objectIds.add(newRicardo.id)
          objectTimeBirth[newRicardo] = currentTime
