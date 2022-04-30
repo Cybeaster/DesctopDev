@@ -2,6 +2,7 @@ package applcation
 
 import `object`.FirstObject
 import `object`.SecondObject
+import behaviour.BaseAI
 import habitat.Habitat
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
@@ -10,6 +11,7 @@ import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.Scene
 import javafx.scene.control.Button
+import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
@@ -27,16 +29,21 @@ import java.util.*
 public class Controller {
 
     @FXML
-    private lateinit var startTopButton: Button
+    private lateinit var firstThreadBox : CheckBox
 
     @FXML
-    private lateinit var stopTopButton: Button
-
-    @FXML
-    private lateinit var toggleTimeButton: Button
+    private lateinit var secondThreadBox : CheckBox
 
     @FXML
     private lateinit var toggleEndWindowButton :Button
+    @FXML
+    private lateinit var toggleTimeButton: Button
+    @FXML
+
+
+    private lateinit var stopTopButton: Button
+    @FXML
+    private lateinit var startTopButton: Button
     @FXML
     private lateinit var startButton : Button
 
@@ -110,6 +117,7 @@ public class Controller {
     private lateinit var scene: Scene
     private var isEndGameWindowDisabled = false
     private var isHiddenSimulationTime = false
+    private lateinit var ai : BaseAI
 
     private fun initStage(rightCornerImg : Image){
         stage.icons.add(rightCornerImg)
@@ -137,13 +145,18 @@ public class Controller {
         initStage(rightCornerImg)
         initKeyHandler(scene)
         setTimers()
+
+        ai = BaseAI(habitat)
+        ai.start()
     }
+
     private fun startSimulation() {
         if(!isSimulationStarted)
         {
             timerTimeline.play()
             firstTimeLine.play()
             secondTimeLine.play()
+
 
             isSimulationStarted = true
 
@@ -166,6 +179,8 @@ public class Controller {
         firstTimeLine.stop()
         secondTimeLine.stop()
         timerTimeline.stop()
+
+
         displayObjects()
 
     }
@@ -197,6 +212,7 @@ public class Controller {
             timeCounterText.text = secondsTimer.toString()
             habitat.tickDeleteTimer(1000f,mainPane)
         }))
+
         timerTimeline.cycleCount = Timeline.INDEFINITE
 
         firstTimeLine = Timeline( KeyFrame(Duration.millis(FirstObject.spawnDelay),{
@@ -356,5 +372,22 @@ public class Controller {
         stopTopButton.isDisable = false
 
         setControllersEnabled(true)
+    }
+
+    @FXML
+    public  fun onFirstCheckBoxSwitched(e: ActionEvent) {
+        if(firstThreadBox.isDisable)
+            ai.firstObjectThread.stopThread()
+        else
+            ai.firstObjectThread.startThread()
+
+    }
+
+    @FXML
+    public  fun onSecondCheckBoxSwitched(e: ActionEvent) {
+        if(secondThreadBox.isDisable)
+            ai.secondObjectThread.stopThread()
+        else
+            ai.secondObjectThread.startThread()
     }
 }
