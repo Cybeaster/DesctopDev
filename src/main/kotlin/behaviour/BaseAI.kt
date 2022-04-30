@@ -1,0 +1,4 @@
+package behaviour
+
+class BaseAI {
+}
