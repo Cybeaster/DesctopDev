@@ -66,14 +66,6 @@
             <Button fx:id="hideSimulationTimeButton" layoutX="447.0" layoutY="5.0" mnemonicParsing="false" onAction="#onHideSimulationTimeButtonClicked" prefHeight="34.0" prefWidth="139.0" text="Hide simulation time" />
          </children>
       </Pane>
-      <Label fx:id="appearingSecObjLabel1" layoutX="866.0" layoutY="370.0" text="1000" />
-      <Slider fx:id="lifeTimeFirstSlider" blockIncrement="1000.0" layoutX="726.0" layoutY="435.0" max="10000.0" min="1000.0" onMouseReleased="#onFirstLifeTimeSliderChanged" value="1000.0" />
-      <Slider fx:id="lifeTimeSecondSlider" blockIncrement="1000.0" layoutX="726.0" layoutY="469.0" max="10000.0" min="1000.0" onMouseReleased="#onSecondLifeTimeSliderChanged" value="1000.0" />
-      <Label layoutX="635.0" layoutY="417.0" prefHeight="18.0" prefWidth="107.0" text="Living time" />
-      <Label fx:id="lifeTimeFirstLabel" layoutX="866.0" layoutY="438.0" text="1000" />
-      <Label layoutX="648.0" layoutY="438.0" text="First object" />
-      <Label layoutX="635.0" layoutY="472.0" prefHeight="18.0" prefWidth="86.0" text="Second Object" />
-      <Label fx:id="lifeTimeSecondLabel" layoutX="866.0" layoutY="472.0" text="1000" />
       <MenuBar layoutY="1.0" prefHeight="26.0" prefWidth="50.0">
         <menus>
           <Menu mnemonicParsing="false" text="File">
@@ -104,9 +96,9 @@
       </MenuBar>
       <CheckBox fx:id="firstThreadBox" layoutX="596.0" layoutY="500.0" mnemonicParsing="false" onAction="#onFirstCheckBoxSwitched" selected="true" text="First Thread enabled" />
       <CheckBox fx:id="secondThreadBox" layoutX="596.0" layoutY="539.0" mnemonicParsing="false" onAction="#onSecondCheckBoxSwitched" selected="true" text="Second Thread enabled" />
-      <TextField layoutX="966.0" layoutY="500.0" prefHeight="26.0" prefWidth="30.0" promptText="1" text="1" />
+      <TextField fx:id="firstThreadPriority" layoutX="966.0" layoutY="500.0" onAction="#OnFirstPriorityBlock" prefHeight="26.0" prefWidth="30.0" promptText="1" text="1" />
       <Label layoutX="838.0" layoutY="504.0" text="First Thread Priority" />
-      <TextField layoutX="966.0" layoutY="539.0" prefHeight="26.0" prefWidth="30.0" promptText="1" text="1" />
+      <TextField fx:id="secondThreadPriority" layoutX="966.0" layoutY="539.0" onAction="#OnSecondPriorityBlock" prefHeight="26.0" prefWidth="30.0" promptText="1" text="1" />
       <Label layoutX="820.0" layoutY="543.0" text="Second Thread Priority" />
    </children>
 </AnchorPane>

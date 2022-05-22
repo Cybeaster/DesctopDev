@@ -8,6 +8,7 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -96,9 +97,16 @@
       </MenuBar>
       <CheckBox fx:id="firstThreadBox" layoutX="596.0" layoutY="500.0" mnemonicParsing="false" onAction="#onFirstCheckBoxSwitched" selected="true" text="First Thread enabled" />
       <CheckBox fx:id="secondThreadBox" layoutX="596.0" layoutY="539.0" mnemonicParsing="false" onAction="#onSecondCheckBoxSwitched" selected="true" text="Second Thread enabled" />
-      <TextField layoutX="966.0" layoutY="500.0" prefHeight="26.0" prefWidth="30.0" promptText="1" text="1" />
+      <TextField fx:id="firstThreadPriority" layoutX="966.0" layoutY="500.0" onAction="#OnFirstPriorityBlock" prefHeight="26.0" prefWidth="30.0" promptText="1" text="1" />
       <Label layoutX="838.0" layoutY="504.0" text="First Thread Priority" />
-      <TextField layoutX="966.0" layoutY="539.0" prefHeight="26.0" prefWidth="30.0" promptText="1" text="1" />
+      <TextField fx:id="secondThreadPriority" layoutX="966.0" layoutY="539.0" onAction="#OnSecondPriorityBlock" prefHeight="26.0" prefWidth="30.0" promptText="1" text="1" />
       <Label layoutX="820.0" layoutY="543.0" text="Second Thread Priority" />
+      <Button layoutX="600.0" layoutY="581.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="86.0" text="Console" />
+      <Pane fx:id="simulationEndPane1" layoutX="240.0" layoutY="310.0" prefHeight="200.0" prefWidth="600.0" visible="false">
+         <children>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="200.0" stroke="BLACK" strokeType="INSIDE" width="600.0" />
+            <TextArea prefHeight="200.0" prefWidth="600.0" />
+         </children>
+      </Pane>
    </children>
 </AnchorPane>

@@ -14,6 +14,9 @@ abstract class ObjectThread : Runnable{
         isRunning = true
     }
 
+    @Synchronized fun setPriority(id : Int){
+        Thread(this).priority = id
+    }
     public var isRunning = true
 }
 
@@ -26,9 +29,11 @@ class FirstObjectThread constructor(habitatVal: Habitat) : ObjectThread(){
             while (isRunning)
             {
                 sleep(10)
-                for (obj in habitat.objects) {
-                    if (obj is SecondObject)
-                        obj.move()
+                synchronized(habitat.objects){
+                    for (obj in habitat.objects) {
+                        if (obj is FirstObject)
+                            obj.move()
+                    }
                 }
             }
             sleep(1000)
@@ -41,15 +46,19 @@ class FirstObjectThread constructor(habitatVal: Habitat) : ObjectThread(){
 class SecondObjectThread constructor(habitatVal: Habitat) : ObjectThread() {
 
     private val habitat = habitatVal
+
     override fun run() {
+
         while (true)
         {
             while (isRunning)
             {
                 sleep(10)
-                for (obj in habitat.objects) {
-                    if (obj is SecondObject)
-                        obj.move()
+                synchronized(habitat.objects){
+                    for (obj in habitat.objects) {
+                        if (obj is SecondObject)
+                            obj.move()
+                    }
                 }
             }
             sleep(1000)

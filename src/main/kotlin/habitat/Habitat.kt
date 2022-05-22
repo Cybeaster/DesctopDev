@@ -14,12 +14,15 @@ class Habitat {
 
     fun destroyObjects(pane: Pane){
 
-        for (item in pane.children){
-            if(item is ImageView){
-                item.image = null
+        synchronized(objects) {
+
+            for (item in pane.children){
+                if(item is ImageView){
+                    item.image = null
+                }
             }
+            objects.clear()
         }
-        objects.clear()
     }
 
     fun removeObjectFromPanel(obj : IObject, pane: Pane){
@@ -37,9 +40,11 @@ class Habitat {
      public inline fun spawnObject(pane : Pane, clazz: Class<out IObject>, currentTime : Float) {
         val newRicardo = clazz.getConstructor().newInstance()
          newRicardo.spawn(pane)
-         objects.add(newRicardo)
-         objectIds.add(newRicardo.id)
-         objectTimeBirth[newRicardo] = currentTime
+         synchronized(objects){
+             objects.add(newRicardo)
+             objectIds.add(newRicardo.id)
+             objectTimeBirth[newRicardo] = currentTime
+         }
     }
 
     public inline fun tickDeleteTimer(deltaTime : Float,pane: Pane){
@@ -47,11 +52,13 @@ class Habitat {
             currentObj.currentLifeTime -= deltaTime
             if(currentObj.currentLifeTime <= 0){
 
-                removeObjectFromPanel(currentObj,pane)
+                synchronized(objects){
+                    removeObjectFromPanel(currentObj,pane)
+                    objectTimeBirth.remove(currentObj)
+                    objectIds.remove(currentObj.id)
+                    objects.remove(currentObj)
+                }
 
-                objectTimeBirth.remove(currentObj)
-                objectIds.remove(currentObj.id)
-                objects.remove(currentObj)
             }
         }
     }
