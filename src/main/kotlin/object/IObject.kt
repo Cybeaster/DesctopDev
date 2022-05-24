@@ -1,15 +1,16 @@
 package `object`
 
-import applcation.ObjectApplication
+import org.application.ObjectApplication
 import habitat.Habitat
-import javafx.scene.Group
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Pane
-import java.util.Random
-import java.util.function.Predicate
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
+import java.util.*
 
-abstract class IObject : Comparable<IObject> {
+@Serializable
+open class IObject : Comparable<IObject> {
 
     protected fun moveImpl(x : Int, y : Int) {
 
@@ -56,6 +57,8 @@ abstract class IObject : Comparable<IObject> {
     }
     public var id : Int = -1
     public var currentLifeTime = 0f
+
+    @Contextual
     public lateinit var imageView : ImageView
 
     private var incrementX = 0
@@ -69,10 +72,10 @@ abstract class IObject : Comparable<IObject> {
     }
 }
 
-
+@Serializable
 class FirstObject : IObject() {
 
-
+    @Contextual
     lateinit var pane: Pane
 
     override fun move() {
@@ -85,6 +88,7 @@ class FirstObject : IObject() {
         currentLifeTime = lifeTime
     }
 
+
     companion object Properties{
         public var spawnDelay = 2000.0
         public var spawnChance = 0.8f
@@ -92,9 +96,10 @@ class FirstObject : IObject() {
     }
 
 }
-
+@Serializable
 class SecondObject : IObject() {
 
+    @Contextual
     lateinit var pane: Pane
 
     override fun move() {

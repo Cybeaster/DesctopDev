@@ -1,4 +1,4 @@
-package applcation
+package org.application
 import javafx.application.Application
 
 fun main()

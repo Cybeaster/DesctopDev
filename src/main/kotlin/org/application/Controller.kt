@@ -1,7 +1,5 @@
-package applcation
-
+package org.application
 import `object`.FirstObject
-import java.io.File
 import `object`.SecondObject
 import behaviour.BaseAI
 import habitat.Habitat
@@ -11,13 +9,7 @@ import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.CheckBox
-import javafx.scene.control.ComboBox
-import javafx.scene.control.Label
-import javafx.scene.control.Slider
-import javafx.scene.control.TextField
-import javafx.scene.control.ToggleButton
+import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
@@ -25,11 +17,10 @@ import javafx.scene.layout.Pane
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import javafx.util.Duration
-import org.controlsfx.control.action.Action
-import java.io.BufferedReader
-import java.io.FileReader
-import java.io.IOException
-import java.lang.Character.isDigit
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import java.lang.Integer.parseInt
 import java.util.*
 
@@ -133,37 +124,73 @@ public class Controller {
     private var isEndGameWindowDisabled = false
     private var isHiddenSimulationTime = false
     private lateinit var ai : BaseAI
-    private var configFile = File("config.txt")
 
-    private fun saveConfig(){
+    private val configInputFile = ObjectInputStream(FileInputStream("src/main/resources/config.properties"))
+    private val configOutputFile = ObjectOutputStream(FileOutputStream("src/main/resources/config.properties"))
 
-        configFile.writeText("isSimulationStarted = $isSimulationStarted \n")
+    private val property = Properties()
 
-        configFile.writeText("FirstObjectAppearingChance = ${FirstObject.spawnChance} \n")
-        configFile.writeText("SecondObjectAppearingChance = ${SecondObject.spawnChance} \n")
+    private fun saveObjects() {
 
-        configFile.writeText("FirstObjectAppearingDelay = ${FirstObject.spawnDelay} \n")
-        configFile.writeText("SecondObjectAppearingDelay = ${SecondObject.spawnDelay} \n")
-
-        configFile.writeText("FirstObjectLifeTime = ${FirstObject.lifeTime} \n")
-        configFile.writeText("SecondObjectLifeTime = ${SecondObject.lifeTime} \n")
-
-        configFile.writeText("FirstThreadEnabled = ${firstThreadBox.isSelected} \n")
-        configFile.writeText("SecondThreadEnable = ${secondThreadBox.isSelected} \n")
-
-        configFile.writeText("FirstThreadPriority = ${firstThreadPriority.text} \n")
-        configFile.writeText("SecondThreadPriority = ${secondThreadPriority.text} \n")
+        for(obj in habitat.objects)
+            configOutputFile.writeObject(obj)
     }
 
+    private fun loadObjects(){
+       print(configInputFile.readObject().toString())
+    }
+
+    private fun saveConfig(){
+        val property = Properties()
+
+        property.setProperty("isSimulationStarted",isSimulationStarted.toString())
+
+        property.setProperty("FirstObjectAppearingChance",FirstObject.spawnChance.toString())
+        property.setProperty("SecondObjectAppearingChance",SecondObject.spawnChance.toString())
+
+        property.setProperty("FirstObjectAppearingDelay",FirstObject.spawnDelay.toString())
+        property.setProperty("SecondObjectAppearingDelay",SecondObject.spawnDelay.toString())
+
+        property.setProperty("FirstObjectLifeTime",FirstObject.lifeTime.toString())
+        property.setProperty("SecondObjectLifeTime",SecondObject.lifeTime.toString())
+
+        property.setProperty("FirstThreadEnabled",firstThreadBox.isSelected.toString())
+        property.setProperty("SecondThreadEnable",secondThreadBox.isSelected.toString())
+
+        property.setProperty("FirstThreadPriority",firstThreadPriority.text)
+        property.setProperty("SecondThreadPriority",secondThreadPriority.text)
+
+        property.store(configOutputFile,null)
+    }
     private fun loadConfig(){
+       val property = Properties()
+        property.load(configInputFile)
 
-        try {
-            BufferedReader(FileReader("config.txt")).use{
+        if(property.getProperty("isSimulationStarted").toBoolean())
+            startSimulation()
 
-            }
-        } catch (e : IOException){
-            e.printStackTrace()
-        }
+
+        FirstObject.spawnChance = property.getProperty("FirstObjectAppearingChance").toFloat()
+        SecondObject.spawnChance = property.getProperty("SecondObjectAppearingChance").toFloat()
+
+        FirstObject.spawnDelay =  property.getProperty("FirstObjectAppearingDelay").toDouble()
+        SecondObject.spawnDelay = property.getProperty("SecondObjectAppearingDelay").toDouble()
+
+        FirstObject.lifeTime = property.getProperty("FirstObjectLifeTime").toFloat()
+        SecondObject.lifeTime = property.getProperty("SecondObjectLifeTime").toFloat()
+
+
+        firstThreadBox.isSelected = property.getProperty("FirstThreadEnabled").toBoolean()
+        if(!firstThreadBox.isSelected)
+            ai.firstObjectThread.stopThread()
+
+        secondThreadBox.isSelected = property.getProperty("SecondThreadEnable").toBoolean()
+        if(secondThreadBox.isSelected)
+            ai.secondObjectThread.stopThread()
+
+        firstThreadPriority.text = property.getProperty("FirstThreadPriority")
+        secondThreadPriority.text = property.getProperty("SecondThreadPriority")
+
     }
 
     private fun initStage(rightCornerImg : Image){
@@ -437,33 +464,37 @@ public class Controller {
             ai.secondObjectThread.startThread()
     }
 
-    @FXML
-    public fun OnFirstPriorityBlock(e: ActionEvent){
+    private fun setPriority(textField : TextField){
         var priority = 1
         try {
-            priority = parseInt(firstThreadPriority.text)
+            priority = parseInt(textField.text)
         } catch (e: NumberFormatException) {
-            firstThreadPriority.text = "1"
+            textField.text = "1"
         }
         if(priority !in 1..10)
         {
             priority = 10
-            firstThreadPriority.text = "10"
+            textField.text = "10"
         }
+    }
+    @FXML
+    public fun OnFirstPriorityBlock(e: ActionEvent){
+        setPriority(firstThreadPriority)
     }
 
     @FXML
     public fun OnSecondPriorityBlock(e: ActionEvent){
-        var priority = 1
-        try {
-            priority = parseInt(secondThreadPriority.text)
-        } catch (e: NumberFormatException) {
-            secondThreadPriority.text = "1"
-        }
-        if(priority !in 1..10)
-        {
-            priority = 10
-            secondThreadPriority.text = "10"
-        }
+        setPriority(secondThreadPriority)
+    }
+    @FXML
+    public fun OnSaveClicked(e :ActionEvent){
+        saveConfig()
+        saveObjects()
+    }
+
+    @FXML
+    public fun OnLoadClicked(e :ActionEvent){
+        loadConfig()
+        loadObjects()
     }
 }
