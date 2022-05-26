@@ -1,4 +1,5 @@
 package org.application
+
 import `object`.FirstObject
 import `object`.SecondObject
 import behaviour.BaseAI
@@ -125,9 +126,8 @@ public class Controller {
     private var isHiddenSimulationTime = false
     private lateinit var ai : BaseAI
 
-    private val configInputFile = ObjectInputStream(FileInputStream("src/main/resources/config.properties"))
-    private val configOutputFile = ObjectOutputStream(FileOutputStream("src/main/resources/config.properties"))
-
+    private val configInputFile = ObjectInputStream(FileInputStream("X:/ProgrammingStuff/Projects/DesktopDev/src/main/resources/config.properties"))
+    private val configOutputFile = ObjectOutputStream(FileOutputStream("X:/ProgrammingStuff/Projects/DesktopDev/src/main/resources/config.properties"))
     private val property = Properties()
 
     private fun saveObjects() {

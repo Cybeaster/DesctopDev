@@ -1,4 +1,4 @@
-module com.example.lab1 {
+module org.application {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
@@ -10,7 +10,8 @@ module com.example.lab1 {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
+    requires kotlinx.serialization.core;
 
-    opens applcation to javafx.fxml;
-    exports applcation;
+    opens org.application to javafx.fxml;
+    exports org.application;
 }
