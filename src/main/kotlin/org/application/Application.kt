@@ -13,7 +13,7 @@ class ObjectApplication : Application() {
 
 
     override fun start(stage: Stage) {
-        val loader = FXMLLoader(javaClass.getResource("/Application.fxml"))
+        val loader = FXMLLoader(javaClass.getResource("/ApplicationConfig.fxml"))
         val root : Parent = loader.load()
         val scene = Scene(root,Habitat.width,Habitat.height,Color.BLACK)
         val rightCornerImg =

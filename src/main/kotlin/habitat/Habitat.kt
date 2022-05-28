@@ -1,13 +1,8 @@
 package habitat
-import `object`.FirstObject
 import `object`.IObject
-import javafx.scene.Group
-import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Pane
-import java.util.LinkedList
-import java.util.Objects
-import java.util.TreeMap
+import java.util.*
 
 
 class Habitat {
@@ -37,7 +32,7 @@ class Habitat {
     }
 
 
-     public inline fun spawnObject(pane : Pane, clazz: Class<out IObject>, currentTime : Float) {
+     public fun spawnObject(pane : Pane, clazz: Class<out IObject>, currentTime : Float) {
         val newRicardo = clazz.getConstructor().newInstance()
          newRicardo.spawn(pane)
          synchronized(objects){
@@ -47,7 +42,7 @@ class Habitat {
          }
     }
 
-    public inline fun tickDeleteTimer(deltaTime : Float,pane: Pane){
+    public fun tickDeleteTimer(deltaTime : Float,pane: Pane){
         for(currentObj in objects){
             currentObj.currentLifeTime -= deltaTime
             if(currentObj.currentLifeTime <= 0){
