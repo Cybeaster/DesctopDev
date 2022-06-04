@@ -18,6 +18,7 @@ import javafx.scene.layout.Pane
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import javafx.util.Duration
+import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.ObjectInputStream
@@ -126,17 +127,19 @@ public class Controller {
     private var isHiddenSimulationTime = false
     private lateinit var ai : BaseAI
 
-    private val configInputFile = ObjectInputStream(FileInputStream("src/main/resources/config.properties"))
-    private val configOutputFile = ObjectOutputStream(FileOutputStream("src/main/resources/config.properties"))
+
     private val property = Properties()
 
     private fun saveObjects() {
-
+         val configInputFile = ObjectInputStream(FileInputStream(javaClass.getResource("/config.properties").toString()))
+         val configOutputFile = ObjectOutputStream(FileOutputStream(javaClass.getResource("/config.properties").toString()))
         for(obj in habitat.objects)
             configOutputFile.writeObject(obj)
     }
 
     private fun loadObjects(){
+         val configInputFile = ObjectInputStream(FileInputStream(javaClass.getResource("/config.properties").toString()))
+         val configOutputFile = ObjectOutputStream(FileOutputStream(javaClass.getResource("/config.properties").toString()))
        print(configInputFile.readObject().toString())
     }
 
@@ -160,11 +163,17 @@ public class Controller {
         property.setProperty("FirstThreadPriority",firstThreadPriority.text)
         property.setProperty("SecondThreadPriority",secondThreadPriority.text)
 
+        val file = File(javaClass.getResource("/config.properties").path)
+        val fileOutputStream = FileOutputStream(file)
+         val configOutputFile = ObjectOutputStream(fileOutputStream)
         property.store(configOutputFile,null)
     }
     private fun loadConfig(){
-       val property = Properties()
-        property.load(configInputFile)
+        val file = File(javaClass.getResource("/config.properties").path)
+        val fileOutputStream = FileInputStream(file)
+        val objectStream = ObjectInputStream(fileOutputStream)
+
+        property.load(objectStream)
 
         if(property.getProperty("isSimulationStarted").toBoolean())
             startSimulation()

@@ -17,7 +17,7 @@ class ObjectApplication : Application() {
         val root : Parent = loader.load()
         val scene = Scene(root,Habitat.width,Habitat.height,Color.BLACK)
         val rightCornerImg =
-            Image(ObjectApplication::class.java.getResource("Ricardo.png").toString())
+            Image(ObjectApplication::class.java.getResource("/application/Ricardo.png").toString())
        loader.getController<Controller>().init(stage,rightCornerImg,scene)
 
     }
