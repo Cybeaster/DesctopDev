@@ -1,17 +1,45 @@
 package `object`
 
-import org.application.ObjectApplication
 import habitat.Habitat
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Pane
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
+import org.application.ObjectApplication
+import java.io.Serializable
 import java.util.*
 
-@Serializable
-open class IObject : Comparable<IObject> {
+enum class ObjectTypes{
+    NONE,
+    FIRST_OBJECT,
+    SECOND_OBJECT
+}
+fun getObjectType(value : Int) : ObjectTypes{
+    when(value) {
+        0 -> return ObjectTypes.NONE
+        1 -> return ObjectTypes.FIRST_OBJECT
+        2 -> return ObjectTypes.SECOND_OBJECT
+    }
+    return ObjectTypes.NONE
+}
+data class ObjectDTO(val currentLifeTime : Float,val id : Int,val objType : ObjectTypes, val XCord : Double, val YCord : Double) : Serializable
 
+open class IObject : Comparable<IObject>{
+
+
+    public open fun getObjectDTO() : ObjectDTO
+    { return ObjectDTO(currentLifeTime,id,ObjectTypes.NONE,currentXPos,currentYPos) }
+
+    protected fun setPosition(x : Double, y : Double){
+        imageView.y = y
+        imageView.x = x
+    }
+
+    fun loadFromObjectDTO(DTO: ObjectDTO, pane: Pane) {
+        spawn(pane)
+        setPosition(DTO.XCord,DTO.YCord)
+        id = DTO.id
+        currentLifeTime = DTO.currentLifeTime
+    }
     protected fun moveImpl(x : Int, y : Int) {
 
         if(incrementX == 0)
@@ -29,8 +57,12 @@ open class IObject : Comparable<IObject> {
         else if(imageView.y > borderY)
             incrementY = -y
 
+
         imageView.x += incrementX
         imageView.y += incrementY
+
+        currentXPos =  imageView.x
+        currentYPos = imageView.y
     }
 
     open fun move(){}
@@ -51,15 +83,16 @@ open class IObject : Comparable<IObject> {
         imageView.x = Habitat.fieldWidth  * Random().nextFloat() + Habitat.fieldOffset
         imageView.y = Habitat.fieldHeight  * Random().nextFloat() + Habitat.fieldOffset
 
-
         id = Random().nextInt(0,1000)
         pane.children.add(imageView)
     }
     public var id : Int = -1
     public var currentLifeTime = 0f
 
-    @Contextual
-    public lateinit var imageView : ImageView
+    lateinit var imageView : ImageView
+
+    var currentXPos = 0.0
+    var currentYPos = 0.0
 
     private var incrementX = 0
     private var incrementY = 0
@@ -72,10 +105,8 @@ open class IObject : Comparable<IObject> {
     }
 }
 
-@Serializable
 class FirstObject : IObject() {
 
-    @Contextual
     lateinit var pane: Pane
 
     override fun move() {
@@ -84,10 +115,9 @@ class FirstObject : IObject() {
 
     override fun spawn(paneArg : Pane) {
         pane = paneArg
-        super.spawnImpl(pane,"RicardoUpsideDown.jpg")
+        super.spawnImpl(pane,"/application/RicardoUpsideDown.jpg")
         currentLifeTime = lifeTime
     }
-
 
     companion object Properties{
         public var spawnDelay = 2000.0
@@ -95,11 +125,12 @@ class FirstObject : IObject() {
         public var lifeTime = 1000f
     }
 
+    override fun getObjectDTO(): ObjectDTO
+    { return ObjectDTO(currentLifeTime,id,ObjectTypes.FIRST_OBJECT,currentXPos,currentYPos) }
+
 }
-@Serializable
 class SecondObject : IObject() {
 
-    @Contextual
     lateinit var pane: Pane
 
     override fun move() {
@@ -108,7 +139,7 @@ class SecondObject : IObject() {
 
     override fun spawn(paneArg: Pane) {
         pane = paneArg
-        super.spawnImpl(pane,"Ricardo.png")
+        super.spawnImpl(pane,"/application/Ricardo.png")
         currentLifeTime = lifeTime
     }
 
@@ -117,4 +148,7 @@ class SecondObject : IObject() {
         public var spawnChance = 0.8f
         public var lifeTime = 1000f
     }
+
+    override fun getObjectDTO(): ObjectDTO {
+        return ObjectDTO(currentLifeTime,id,ObjectTypes.SECOND_OBJECT,currentXPos,currentYPos) }
 }

@@ -1,8 +1,10 @@
 package org.application
 
 import `object`.FirstObject
+import `object`.ObjectDTO
 import `object`.SecondObject
 import behaviour.BaseAI
+import client.ClientThread
 import habitat.Habitat
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
@@ -18,99 +20,106 @@ import javafx.scene.layout.Pane
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import javafx.util.Duration
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import java.io.*
 import java.lang.Integer.parseInt
 import java.util.*
 
 public class Controller {
 
     @FXML
-    private lateinit var firstThreadPriority : TextField
+    lateinit var connectedClientsField : TextArea
 
     @FXML
-    private lateinit var secondThreadPriority : TextField
+    lateinit var consolePane : Pane
 
     @FXML
-    private lateinit var firstThreadBox : CheckBox
+    lateinit var console: TextArea
 
     @FXML
-    private lateinit var secondThreadBox : CheckBox
+    lateinit var firstThreadPriority : TextField
 
     @FXML
-    private lateinit var toggleEndWindowButton :Button
+     lateinit var secondThreadPriority : TextField
 
     @FXML
-    private lateinit var toggleTimeButton: Button
+     lateinit var firstThreadBox : CheckBox
 
     @FXML
-    private lateinit var stopTopButton: Button
+     lateinit var secondThreadBox : CheckBox
 
     @FXML
-    private lateinit var startTopButton: Button
+     lateinit var toggleEndWindowButton :Button
 
     @FXML
-    private lateinit var startButton : Button
+     lateinit var toggleTimeButton: Button
 
     @FXML
-    private lateinit var stopButton: Button
+     lateinit var stopTopButton: Button
 
     @FXML
-    private lateinit var firstAppearingChance : ComboBox<Int>
+     lateinit var startTopButton: Button
 
     @FXML
-    private lateinit var secondAppearingChance : ComboBox<Int>
+     lateinit var startButton : Button
 
     @FXML
-    private lateinit var appearingFirstObjDelay : Slider
+     lateinit var stopButton: Button
 
     @FXML
-    private lateinit var appearingSecObjDelay : Slider
+     lateinit var firstAppearingChance : ComboBox<Int>
 
     @FXML
-    private lateinit var appearingFirstObjLabel : Label
+     lateinit var secondAppearingChance : ComboBox<Int>
 
     @FXML
-    private lateinit var appearingSecObjLabel : Label
+     lateinit var appearingFirstObjDelay : Slider
 
     @FXML
-    private lateinit var lifeTimeFirstSlider : Slider
+     lateinit var appearingSecObjDelay : Slider
 
     @FXML
-    private lateinit var lifeTimeSecondSlider : Slider
+     lateinit var appearingFirstObjLabel : Label
 
     @FXML
-    private lateinit var lifeTimeFirstLabel : Label
+     lateinit var appearingSecObjLabel : Label
 
     @FXML
-    private lateinit var lifeTimeSecondLabel : Label
+     lateinit var lifeTimeFirstSlider : Slider
 
     @FXML
-    private lateinit var viewModeToggle : ToggleButton
+     lateinit var lifeTimeSecondSlider : Slider
 
     @FXML
-    private lateinit var hideSimulationTimeButton : Button
+     lateinit var lifeTimeFirstLabel : Label
 
     @FXML
-    private lateinit var timeCounterText : Text
+     lateinit var lifeTimeSecondLabel : Label
 
     @FXML
-    private lateinit var timeInSimulationLabel : Label
+     lateinit var viewModeToggle : ToggleButton
 
     @FXML
-    private lateinit var numberOfFirstObj : Text
+     lateinit var hideSimulationTimeButton : Button
 
     @FXML
-    private lateinit var numberOfSecondObj : Text
+     lateinit var timeCounterText : Text
 
     @FXML
-    private lateinit var mainPane : Pane
+     lateinit var timeInSimulationLabel : Label
 
     @FXML
-    private lateinit var simulationEndPane : Pane
+     lateinit var numberOfFirstObj : Text
+
+    @FXML
+     lateinit var numberOfSecondObj : Text
+
+    @FXML
+     lateinit var mainPane : Pane
+
+    @FXML
+     lateinit var simulationEndPane : Pane
 
 
     private var isSimulationStarted = false
@@ -126,24 +135,68 @@ public class Controller {
     private var isEndGameWindowDisabled = false
     private var isHiddenSimulationTime = false
     private lateinit var ai : BaseAI
-
-
+    private val pathToConfig = "E:\\ProgrammingStuff\\Projects\\DesktopDev\\src\\main\\resources\\config.properties"
+    private val pathToObjectConfig = "E:\\ProgrammingStuff\\Projects\\DesktopDev\\src\\main\\resources\\objectConfig.properties"
     private val property = Properties()
+    private val clientThread = ClientThread(this)
+    public var replicateObjects = false
+    public var receivedObjects = false
+    public var syncSettings = false
+    fun startClient(){
+        clientThread.serverStart()
+    }
+
+    public fun recieveObjects(array: ArrayList<Any>){
+        cleanScene()
+        for(obj in array)
+            habitat.spawnObject(Json.decodeFromString(obj.toString()),mainPane,secondsTimer)
+    }
+    public fun loadDTOObjects(array: ArrayList<ObjectDTO>){
+        cleanScene()
+        for (obj in array){
+            habitat.spawnObject(obj,mainPane,secondsTimer)
+        }
+    }
+    private fun cleanScene(){
+        habitat.destroyObjects(mainPane)
+    }
 
     private fun saveObjects() {
-         val configInputFile = ObjectInputStream(FileInputStream(javaClass.getResource("/config.properties").toString()))
-         val configOutputFile = ObjectOutputStream(FileOutputStream(javaClass.getResource("/config.properties").toString()))
+        val file = File(pathToObjectConfig)
+        val outputObjectStream = ObjectOutputStream(FileOutputStream(file))
         for(obj in habitat.objects)
-            configOutputFile.writeObject(obj)
+            outputObjectStream.writeObject(obj.getObjectDTO())
+        outputObjectStream.writeObject(null)
+        outputObjectStream.close()
     }
-
+    public fun printCurrentUsers(string: String){
+        connectedClientsField.text = string
+    }
+    public fun cleanConnectedUsers(){
+        connectedClientsField.text = ""
+    }
     private fun loadObjects(){
-         val configInputFile = ObjectInputStream(FileInputStream(javaClass.getResource("/config.properties").toString()))
-         val configOutputFile = ObjectOutputStream(FileOutputStream(javaClass.getResource("/config.properties").toString()))
-       print(configInputFile.readObject().toString())
+        stopImpl(false)
+        val file = File(pathToObjectConfig)
+        val inputStream = FileInputStream(file)
+        if(inputStream.channel.size() != 0L)
+        {
+            val inputObjStream = ObjectInputStream(inputStream)
+            var isObjectValid = true
+            while (isObjectValid)
+            {
+                val obj = inputObjStream.readObject()
+                if(obj is ObjectDTO)
+                    habitat.spawnObject(obj,mainPane,secondsTimer)
+                else
+                    isObjectValid = false
+            }
+        }
+        inputStream.close()
+        startImpl()
     }
 
-    private fun saveConfig(){
+    public fun saveConfig(){
         val property = Properties()
 
         property.setProperty("isSimulationStarted",isSimulationStarted.toString())
@@ -163,43 +216,54 @@ public class Controller {
         property.setProperty("FirstThreadPriority",firstThreadPriority.text)
         property.setProperty("SecondThreadPriority",secondThreadPriority.text)
 
-        val file = File(javaClass.getResource("/config.properties").path)
-        val fileOutputStream = FileOutputStream(file)
-         val configOutputFile = ObjectOutputStream(fileOutputStream)
-        property.store(configOutputFile,null)
+        val file = File(pathToConfig)
+        val outputSteam = FileOutputStream(file)
+        property.store(outputSteam,null)
+        outputSteam.close()
     }
     private fun loadConfig(){
-        val file = File(javaClass.getResource("/config.properties").path)
-        val fileOutputStream = FileInputStream(file)
-        val objectStream = ObjectInputStream(fileOutputStream)
+        stopImpl(false)
+        val file = File(pathToConfig)
+        val inputStream = FileInputStream(file)
+        if(inputStream.read() != -1)
+        {
+            property.load(inputStream)
+            if(property.getProperty("isSimulationStarted").toBoolean())
+                startSimulation()
 
-        property.load(objectStream)
+            FirstObject.spawnChance = property.getProperty("FirstObjectAppearingChance").toFloat()
+            SecondObject.spawnChance = property.getProperty("SecondObjectAppearingChance").toFloat()
 
-        if(property.getProperty("isSimulationStarted").toBoolean())
-            startSimulation()
+            FirstObject.spawnDelay =  property.getProperty("FirstObjectAppearingDelay").toDouble()
+            SecondObject.spawnDelay = property.getProperty("SecondObjectAppearingDelay").toDouble()
 
-
-        FirstObject.spawnChance = property.getProperty("FirstObjectAppearingChance").toFloat()
-        SecondObject.spawnChance = property.getProperty("SecondObjectAppearingChance").toFloat()
-
-        FirstObject.spawnDelay =  property.getProperty("FirstObjectAppearingDelay").toDouble()
-        SecondObject.spawnDelay = property.getProperty("SecondObjectAppearingDelay").toDouble()
-
-        FirstObject.lifeTime = property.getProperty("FirstObjectLifeTime").toFloat()
-        SecondObject.lifeTime = property.getProperty("SecondObjectLifeTime").toFloat()
+            FirstObject.lifeTime = property.getProperty("FirstObjectLifeTime").toFloat()
+            SecondObject.lifeTime = property.getProperty("SecondObjectLifeTime").toFloat()
 
 
-        firstThreadBox.isSelected = property.getProperty("FirstThreadEnabled").toBoolean()
-        if(!firstThreadBox.isSelected)
-            ai.firstObjectThread.stopThread()
+            firstThreadBox.isSelected = property.getProperty("FirstThreadEnabled").toBoolean()
+            if(!firstThreadBox.isSelected)
+                ai.firstObjectThread.stopThread()
 
-        secondThreadBox.isSelected = property.getProperty("SecondThreadEnable").toBoolean()
-        if(secondThreadBox.isSelected)
-            ai.secondObjectThread.stopThread()
+            secondThreadBox.isSelected = property.getProperty("SecondThreadEnable").toBoolean()
+            if(!secondThreadBox.isSelected)
+                ai.secondObjectThread.stopThread()
 
-        firstThreadPriority.text = property.getProperty("FirstThreadPriority")
-        secondThreadPriority.text = property.getProperty("SecondThreadPriority")
+            firstThreadPriority.text = property.getProperty("FirstThreadPriority")
+            secondThreadPriority.text = property.getProperty("SecondThreadPriority")
 
+            appearingFirstObjLabel.text = property.getProperty("FirstObjectAppearingDelay")
+            appearingSecObjLabel.text = property.getProperty("SecondObjectAppearingDelay")
+
+            lifeTimeFirstLabel.text = FirstObject.lifeTime.toString()
+            lifeTimeSecondLabel.text = SecondObject.lifeTime.toString()
+
+            lifeTimeFirstSlider.value = FirstObject.lifeTime.toDouble()
+            lifeTimeSecondSlider.value = SecondObject.lifeTime.toDouble()
+
+
+        }
+        inputStream.close()
     }
 
     private fun initStage(rightCornerImg : Image){
@@ -231,6 +295,8 @@ public class Controller {
 
         ai = BaseAI(habitat)
         ai.start()
+        loadConfig()
+       // startClient()
     }
 
     private fun startSimulation() {
@@ -284,9 +350,11 @@ public class Controller {
             if(Random().nextFloat() < SecondObject.spawnChance)
                 habitat.spawnObject(mainPane, SecondObject::class.java,secondsTimer)
         }))
-
-        firstTimeLine.play()
-        secondTimeLine.play()
+        if(isSimulationStarted)
+        {
+            firstTimeLine.play()
+            secondTimeLine.play()
+        }
     }
     private fun setTimers(){
 
@@ -330,19 +398,25 @@ public class Controller {
         timeInSimulationLabel.isVisible = !timeInSimulationLabel.isVisible
     }
 
-
-    public fun onStartButtonClicked(e : ActionEvent){
+    private fun startImpl(){
         startSimulation()
         startButton.isDisable = true
         startTopButton.isDisable = true
         stopButton.isDisable = false
         stopTopButton.isDisable = false
+
     }
-    public fun onStopButtonClicked(e: ActionEvent){
+    public fun onStartButtonClicked(e : ActionEvent){
+        startImpl()
+    }
+
+    private fun stopImpl(spawnEndPane : Boolean)
+    {
         pauseSimulation()
         if(!isEndGameWindowDisabled)
         {
-            simulationEndPane.isVisible = true
+            if(spawnEndPane)
+                simulationEndPane.isVisible = true
             startTopButton.isDisable = true
             stopTopButton.isDisable = true
             setControllersEnabled(false)
@@ -354,7 +428,9 @@ public class Controller {
             startButton.isDisable = false
         }
         stopButton.isDisable = true
-
+    }
+    public fun onStopButtonClicked(e: ActionEvent){
+        stopImpl(true)
     }
 
     public fun setControllersEnabled(enableControlElems : Boolean){
@@ -497,13 +573,80 @@ public class Controller {
     }
     @FXML
     public fun OnSaveClicked(e :ActionEvent){
-        saveConfig()
         saveObjects()
     }
 
     @FXML
     public fun OnLoadClicked(e :ActionEvent){
-        loadConfig()
         loadObjects()
+    }
+
+    @FXML
+    public fun onConsoleButtonClicked(e : ActionEvent){
+        consolePane.isVisible = !consolePane.isVisible
+    }
+
+    private val firstCommand = "SetFirstObjLifeTime"
+    private val secondCommand = "SetSecondObjLifeTime"
+
+
+    @FXML
+    private fun onCommandTyped(event : KeyEvent){
+        if(event.code == KeyCode.ENTER){
+            var commandSubstring = ""
+            var valueSubstring = ""
+            val consoleText = console.text
+            for (char in consoleText)
+            {
+                if(commandSubstring == firstCommand || commandSubstring == secondCommand) {
+                    if(char.isDigit())
+                        valueSubstring += char
+                }
+                else
+                {
+                    if(char.toString() != " ") {
+                        commandSubstring += char
+                    }
+                }
+            }
+
+            when (commandSubstring) {
+                firstCommand -> {
+                    FirstObject.lifeTime = valueSubstring.toFloat()
+                }
+                secondCommand -> {
+                    SecondObject.lifeTime = valueSubstring.toFloat()
+                }
+                else -> {
+                    print("You typed invalid command!")
+                    console.text = ""
+                    return
+                }
+            }
+            console.text = ""
+            console.text =
+                "Current lifeTime of the first object type: ${FirstObject.lifeTime} \n" +
+                "Current lifeTime of the second object type: ${SecondObject.lifeTime} \n"
+
+            lifeTimeFirstLabel.text = FirstObject.lifeTime.toString()
+            lifeTimeSecondLabel.text = SecondObject.lifeTime.toString()
+
+            lifeTimeFirstSlider.value = FirstObject.lifeTime.toDouble()
+            lifeTimeSecondSlider.value = SecondObject.lifeTime.toDouble()
+        }
+    }
+    @FXML
+    fun sendObjects(e: ActionEvent){
+        syncSettings = true
+    }
+
+    @FXML
+    fun saveObjectsToDB(e: ActionEvent){
+        DataBase.saveIntoDB(habitat)
+    }
+
+    @FXML
+    fun loadObjectsFromDB(e: ActionEvent){
+       DataBase.loadFromDB(this)
     }
 }

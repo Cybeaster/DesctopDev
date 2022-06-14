@@ -11,6 +11,8 @@ module org.application {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires kotlinx.serialization.core;
+    requires kotlinx.serialization.json;
+    requires java.sql;
 
     opens org.application to javafx.fxml;
     exports org.application;

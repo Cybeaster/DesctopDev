@@ -1,5 +1,5 @@
 package habitat
-import `object`.IObject
+import `object`.*
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Pane
 import java.util.*
@@ -10,7 +10,6 @@ class Habitat {
     fun destroyObjects(pane: Pane){
 
         synchronized(objects) {
-
             for (item in pane.children){
                 if(item is ImageView){
                     item.image = null
@@ -31,17 +30,35 @@ class Habitat {
         }
     }
 
-
+    private fun addObjectToList(obj: IObject,currentTime : Float)
+    {
+        synchronized(objects){
+            objects.add(obj)
+            objectIds.add(obj.id)
+            objectTimeBirth[obj] = currentTime
+        }
+    }
      public fun spawnObject(pane : Pane, clazz: Class<out IObject>, currentTime : Float) {
         val newRicardo = clazz.getConstructor().newInstance()
          newRicardo.spawn(pane)
-         synchronized(objects){
-             objects.add(newRicardo)
-             objectIds.add(newRicardo.id)
-             objectTimeBirth[newRicardo] = currentTime
-         }
+         addObjectToList(newRicardo,currentTime)
     }
-
+    public fun spawnObject(DTO : ObjectDTO,pane: Pane,currentTime : Float){
+        when(DTO.objType){
+            ObjectTypes.FIRST_OBJECT ->
+            {
+                val firstObject = FirstObject()
+                firstObject.loadFromObjectDTO(DTO,pane)
+                addObjectToList(firstObject,currentTime)
+            }
+            ObjectTypes.SECOND_OBJECT ->
+            {
+                val secondObject = SecondObject()
+                secondObject.loadFromObjectDTO(DTO,pane)
+                addObjectToList(secondObject,currentTime)
+            }
+        }
+    }
     public fun tickDeleteTimer(deltaTime : Float,pane: Pane){
         for(currentObj in objects){
             currentObj.currentLifeTime -= deltaTime
@@ -70,7 +87,7 @@ class Habitat {
         const val fieldHeight = 500.0
     }
 
-    var objects  = LinkedList<IObject>()
-    var objectIds = HashSet<Int>()
-    var objectTimeBirth = TreeMap<IObject,Float>()
+    public var objects  = LinkedList<IObject>()
+    public var objectIds = HashSet<Int>()
+    public var objectTimeBirth = TreeMap<IObject,Float>()
 }
